@@ -1,6 +1,6 @@
 # Define provider
 provider "azurerm" {
-    version = "~>2.0"
+    version = ">=2.0"
     features {}
 }
 
@@ -131,7 +131,7 @@ resource "azurerm_network_interface" "NIC1" {
 
 #Create Boot Diagnostic Account
 resource "azurerm_storage_account" "sa" {
-  name                     = "diagacsrii6969" 
+  name                     = "diagacsrii6969754" 
   resource_group_name      = "specialisatieproject"
   location                 = "West Europe"
    account_tier            = "Standard"
