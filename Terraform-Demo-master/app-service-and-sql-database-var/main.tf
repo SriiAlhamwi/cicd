@@ -1,61 +1,61 @@
+# Define provider
 provider "azurerm" {
     version = "~>2.0"
     features {}
 }
-resource "azurerm_resource_group" "RG-Terraform" {
-  name     = "terraform-resource-group"
-  location = "West Europe"
+
+# Create Resource Group
+resource "azurerm_resource_group" "specialisatieproject" {
+    name     = "specialisatieproject"
+    location = "West Europe"
+    tags = {
+        environment = "Terraform"
+        
+    }
 }
 
-resource "azurerm_app_service_plan" "ASP-TerraForm" {
-  name                = "terraform-appserviceplan"
-  location            = azurerm_resource_group.RG-Terraform.location
-  resource_group_name = azurerm_resource_group.RG-Terraform.name
+#Create Virtual Machine
+resource "azurerm_virtual_machine" "CloudVM" {
+  name                  = "CloudVM"  
+  location              = "West Europe"
+  resource_group_name   = "specialisatieproject"
+  network_interface_ids = [azurerm_network_interface.NIC1.id]
+  vm_size               = "Standard_B1s"
+  delete_os_disk_on_termination = true
+  delete_data_disks_on_termination = true
 
-  sku {
-    tier = "Standard"
-    size = "S1"
-  }
-}
-
-resource "azurerm_app_service" "AS-Terraform" {
-  name                = "app-service-terraform"
-  location            = azurerm_resource_group.RG-Terraform.location
-  resource_group_name = azurerm_resource_group.RG-Terraform.name
-  app_service_plan_id = azurerm_app_service_plan.ASP-TerraForm.id
-
-  site_config {
-    dotnet_framework_version = "v4.0"
-    scm_type                 = "LocalGit"
+  storage_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "16.04-LTS"
+    version   = "latest"
   }
 
-  app_settings = {
-    "SOME_KEY" = "some-value"
+  storage_os_disk {
+    name              = "osdisk1"
+    disk_size_gb      = "128"
+    caching           = "ReadWrite"
+    create_option     = "FromImage"
+    managed_disk_type = "Standard_LRS"
   }
 
-  connection_string {
-    name  = "Database"
-    type  = "SQLServer"
-    value = "Server=tcp:${azurerm_sql_server.test.fully_qualified_domain_name} Database=${azurerm_sql_database.test.name};User ID=${azurerm_sql_server.test.administrator_login};Password=${azurerm_sql_server.test.administrator_login_password};Trusted_Connection=False;Encrypt=True;"
+  os_profile {
+    computer_name  = "SriiVM"
+    admin_username = "vmadmin"
+    admin_password = "Password12345!"
   }
-}
 
-resource "azurerm_sql_server" "test" {
-  name                         = "terraform-sqlserver"
-  resource_group_name          = azurerm_resource_group.RG-Terraform.name
-  location                     = azurerm_resource_group.RG-Terraform.location
-  version                      = "12.0"
-  administrator_login          = "houssem"
-  administrator_login_password = "4-v3ry-53cr37-p455w0rd"
-}
 
-resource "azurerm_sql_database" "test" {
-  name                = "terraform-sqldatabase"
-  resource_group_name = azurerm_resource_group.RG-Terraform.name
-  location            = azurerm_resource_group.RG-Terraform.location
-  server_name         = azurerm_sql_server.test.name
-
-  tags = {
-    environment = "production"
+  os_profile_linux_config {
+    disable_password_authentication = true
+    ssh_keys {
+      path     = "/home/vmadmin/.ssh/authorized_keys"
+      key_data = "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAACAQDi2yCOtc89IHcqVQ9kMkqLXUE2lnR3pTBb60jzAqB3WNzK1sREb1oeFTp81Kf2CrBU7OCJ7gl6wxRlMsBh+UlQly1LtOuYiGnO6fkZa0ytVRVogPeb1DOCIPc9Nu9xe2TvNN2SnaTDxOqnndjUVlsq9edFdXdpsSKN66saCjUAxgj+tSaRjWvUlZaClaRmRu7uoOAoMyZD158pIXZ87anH2Dh7Va4TmRkd24VMCkKpxmCVghHmjA0r+qL4KJbJe3LitxxRIXcMiy3avKMlsKecKm33WytIvBfcITLgnclrxzwBhrJS8E1qwWz95RqqN06zqjbYPCWdtOs3OMUqE/5GtPhJlguFxAK0D/ej6U79E9U+vD+6/JKgiSmQ1O6EEOxaVZPQjL4CTYLQCJ2WMFzORsG6Xrn3Q/P94jwKw+V6tVu8Lj9P0EXq1+fJAI2kiqsUkyAjQel4Tt5yhSD7M8fVlBOfbN5PuI1ek9Q+WzrLbhkxM8A81pn6S4eG2welBwP/uWQax93+AGmOgrKA8kSUuKsJlk1nfo4N0NKOVHF1AqbtShPMrx+0J3GL2IR0hcOXQ1WXohRzMfi27g+2hsZ9e4qoeH1hlHXM7StazaqGJ47xrz/Qc5qrrNRqrPM7t0uq86Qq2JRkVkblUxU3bkGPd8p1B/OJKUqS1xlV11s6/Q== srii@cc-31bbff04-65b89cbcb4-gqr6l"
+    }
+  
   }
-}
+
+boot_diagnostics {
+        enabled     = "true"
+        storage_uri = azurerm_storage_account.sa.primary_blob_endpoint
+    }
