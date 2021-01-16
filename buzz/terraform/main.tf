@@ -4,6 +4,29 @@ provider "azurerm" {
     features {}
 }
 
+# Create Resource Group
+resource "azurerm_resource_group" "specialisatieproject" {
+    name     = "specialisatieproject"
+    location = "West Europe"
+    tags = {
+        environment = "Terraform"
+        
+    }
+}
+
+resource "null_resource" "previous" {}
+
+resource "time_sleep" "wait_15_seconds" {
+  depends_on = [null_resource.previous]
+
+  create_duration = "15s"
+}
+
+# This resource will create (at least) 15 seconds after null_resource.previous
+resource "null_resource" "next" {
+  depends_on = [time_sleep.wait_15_seconds]
+}
+
 # Create virtual network
 resource "azurerm_virtual_network" "CloudVnet" {
     name                = "CloudVnet"
@@ -108,7 +131,7 @@ resource "azurerm_network_interface" "NIC1" {
 
 #Create Boot Diagnostic Account
 resource "azurerm_storage_account" "sa" {
-  name                     = "diagacsrii6969754" 
+  name                     = "diagaccreinsrii1337" 
   resource_group_name      = "specialisatieproject"
   location                 = "West Europe"
    account_tier            = "Standard"
@@ -146,7 +169,7 @@ resource "azurerm_virtual_machine" "CloudVM" {
   }
 
   os_profile {
-    computer_name  = "SriiVM"
+    computer_name  = "RienkVM"
     admin_username = "vmadmin"
     admin_password = "Password12345!"
   }
@@ -167,3 +190,28 @@ boot_diagnostics {
     }
 }
 
+# Create Appplan
+resource "azurerm_app_service_plan" "svcplan" {
+  name                = "CloudGovSvcPlan"
+  location            = "West Europe"
+  resource_group_name = "specialisatieproject"
+
+  sku {
+    tier = "Standard"
+    size = "S1"
+  }
+}
+
+#Create Webapp
+resource "azurerm_app_service" "appsvc" {
+  name                = "CloudGovWebApp"
+  location            = "West Europe"
+  resource_group_name = "specialisatieproject"
+  app_service_plan_id = azurerm_app_service_plan.svcplan.id
+
+
+  site_config {
+    dotnet_framework_version = "v4.0"
+    scm_type                 = "LocalGit"
+  }
+}
