@@ -131,7 +131,7 @@ resource "azurerm_network_interface" "NIC1" {
 
 #Create Boot Diagnostic Account
 resource "azurerm_storage_account" "sa" {
-  name                     = "diagaccreinsrii1337" 
+  name                     = "diagaccsrii15725" 
   resource_group_name      = "specialisatieproject"
   location                 = "West Europe"
    account_tier            = "Standard"
@@ -169,7 +169,7 @@ resource "azurerm_virtual_machine" "CloudVM" {
   }
 
   os_profile {
-    computer_name  = "RienkVM"
+    computer_name  = "sriiVM"
     admin_username = "vmadmin"
     admin_password = "Password12345!"
   }
