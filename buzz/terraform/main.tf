@@ -4,29 +4,6 @@ provider "azurerm" {
     features {}
 }
 
-# Create Resource Group
-resource "azurerm_resource_group" "specialisatieproject" {
-    name     = "specialisatieproject"
-    location = "West Europe"
-    tags = {
-        environment = "Terraform"
-        
-    }
-}
-
-resource "null_resource" "previous" {}
-
-resource "time_sleep" "wait_15_seconds" {
-  depends_on = [null_resource.previous]
-
-  create_duration = "15s"
-}
-
-# This resource will create (at least) 15 seconds after null_resource.previous
-resource "null_resource" "next" {
-  depends_on = [time_sleep.wait_15_seconds]
-}
-
 # Create virtual network
 resource "azurerm_virtual_network" "CloudVnet" {
     name                = "CloudVnet"
