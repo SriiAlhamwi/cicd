@@ -4,16 +4,6 @@ provider "azurerm" {
     features {}
 }
 
-# Create Resource Group
-resource "azurerm_resource_group" "specialisatieproject" {
-    name     = "specialisatieproject"
-    location = "West Europe"
-    tags = {
-        environment = "Terraform"
-        
-    }
-}
-
 #Create Virtual Machine
 resource "azurerm_virtual_machine" "CloudVM" {
   name                  = "CloudVM"  
