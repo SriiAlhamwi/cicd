@@ -108,7 +108,7 @@ resource "azurerm_network_interface" "NIC1" {
 
 #Create Boot Diagnostic Account
 resource "azurerm_storage_account" "sa" {
-  name                     = "diagacsrii5725270" 
+  name                     = "diagacsrii576969" 
   resource_group_name      = "specialisatieproject"
   location                 = "West Europe"
    account_tier            = "Standard"
